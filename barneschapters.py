@@ -81,6 +81,8 @@ def get_chapters(url):
             #print(scene)
             if scene.startswith("Side"):
                 break
+            if scene.startswith("Disc"):
+                break
             if scene.startswith("0."):
                 continue
             if scene.find("Chapter Selection") > 0:
@@ -88,23 +90,39 @@ def get_chapters(url):
             if scene.find('[') > 0:
                 count += 1
                 timestamp = scene[scene.find('[')+1:scene.find(']')]
-
-                str_minutes = timestamp[:timestamp.find(':')]
-                if len(str_minutes) == 0:
-                    minutes = 0
-                else:
-                    minutes = int(str_minutes)
-
-                str_seconds = timestamp[timestamp.find(':')+1:]
-                if len(str_seconds) == 0:
-                    seconds = 0
-                else:
-                    seconds = int(str_seconds)
+                times = []
+                while timestamp.find(':') >= 0:
+                    times += [timestamp[:timestamp.find(':')]]
+                    timestamp = timestamp[timestamp.find(':')+1:]
+                hours=0
+                minutes=0
+                seconds=0
+                times = times[::-1]
+                acount = 0
+                for time in times:
+                    if acount == 0:
+                        seconds = int('0'+time)
+                    elif acount == 1:
+                        minutes = int('0'+time)
+                    else:
+                        hours = int('0'+time)
+                    acount += 1
+                #str_minutes = timestamp[:timestamp.find(':')]
+                #if len(str_minutes) == 0:
+                #    minutes = 0
+                #else:
+                #    minutes = int(str_minutes)
+                #print(scene)
+                #str_seconds = timestamp[timestamp.find(':')+1:]
+                #if len(str_seconds) == 0:
+                #    seconds = 0
+                #else:
+                #    seconds = int(str_seconds)
 
                 if count == 1:
-                    tot_time = timedelta(minutes=minutes,seconds=seconds)
+                    tot_time = timedelta(hours=hours,minutes=minutes,seconds=seconds)
                 else:
-                    tot_time += timedelta(minutes=minutes,seconds=seconds)
+                    tot_time += timedelta(hours=hours,minutes=minutes,seconds=seconds)
 
                 times += [tot_time]
             fixed_scene = scene[:(scene.find('[')-1)].strip()
